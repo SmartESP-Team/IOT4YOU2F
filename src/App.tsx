@@ -2388,22 +2388,52 @@ const HomePage = () => {
   const [downloadError, setDownloadError] = useState('');
 
   // >>> NEW: Pre-defined list of 10 tester IDs
-  const validTesterIds = [
-    '21HOUeHOU6',
-    'PERRY',
-    'TEST-R6NANI',
-    'TEST-TesT',
-    'TEST-Z9A2B',
-    'TEST-C7D4E',
-    'TEST-F8G6H',
-    'TEST-J1K3L',
-    'TEST-Q5V7W',
-    'TEST-X8Y0Z'
-  ];
+ const validTesterIds = [
+  '21HOUeHOU6',
+  'PERRY',
+  'TEST-R6NANI',
+  'TEST-TesT',
+  'TEST-Z9A2B',
+  'TEST-C7D4E',
+  'TEST-F8G6H',
+  'TEST-J1K3L',
+  'TEST-Q5V7W',
+  'TEST-X8Y0Z',
+  '22KYPZ7001',
+  'MAVERICK',
+  'TEST-P9M1D',
+  'TEST-A3B5C',
+  'TEST-G2H4I',
+  'TEST-K6L8M',
+  'TEST-N0P2Q',
+  'TEST-R4S6T',
+  'TEST-U7V9W',
+  'TEST-X1Y3Z',
+  '23JHNX4444',
+  'JUNIPER',
+  'TEST-D5E7F',
+  'TEST-V8W0X',
+  'TEST-B1C3D',
+  'TEST-E9F0G',
+  'TEST-H2I4J',
+  'TEST-L3M5N',
+  'TEST-O6P8Q',
+  'TEST-S7T9U',
+  '24LMDG8888',
+  'ZENITH',
+  'TEST-Y1Z3A',
+  'TEST-C2D4E',
+  'TEST-F5G7H',
+  'TEST-I8J0K',
+  'TEST-L1M3N',
+  'TEST-O4P6Q',
+  'TEST-R7S9T',
+  'TEST-U0V2W'
+];
 
   // >>> NEW: Function to handle the final download after validation
   const handleFinalDownload = () => {
-    window.open("https://github.com/SmartESP-Team/Site_de_smart_ESP/releases/download/v1.0/arduino.ide.hepler.zip", "_blank", "noopener,noreferrer");
+    window.open("https://github.com/SmartESP-Team/Site_de_smart_ESP/releases/download/v1.0/arduino-ide-hepler.IOT4YOU2.exe", "_blank", "noopener,noreferrer");
   };
 
   // >>> UPDATED: Function to handle form submission
