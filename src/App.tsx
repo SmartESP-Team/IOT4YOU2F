@@ -3174,15 +3174,6 @@ const HomePage = () => {
     const [customPrompt, setCustomPrompt] = useState("");
     const [customGeneratedCode, setCustomGeneratedCode] = useState<string | null>(null);
     const [loadingCustomCode, setLoadingCustomCode] = useState(false);
-    // >>> NEW FEATURE: Applied Search Term (for Enter key)
-    const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
-    // Handle Enter key press for search
-    const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        setAppliedSearchTerm(searchTerm); // Apply the search only on Enter
-        e.preventDefault();
-      }
-    };
     // Effect to save selected components to localStorage
     useEffect(() => {
       const ids = selectedComponentsForAI.map(comp => comp.id);
@@ -3256,9 +3247,9 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
       setCustomPrompt("");
       setCustomGeneratedCode(null);
     };
-    // >>> NEW FEATURE: Filter components using the applied search term (on Enter)
+    // Filter components in real-time as user types
     const filteredComponents = iotComponents.filter((component) =>
-      component.name.toLowerCase().includes(appliedSearchTerm.toLowerCase())
+      component.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -3284,7 +3275,6 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
                 placeholder="Rechercher un composant..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleSearchKeyPress} // <-- NEW: Trigger search on Enter
                 className="glass-input w-full pl-10 pr-4 py-3 rounded-2xl"
               />
             </div>
