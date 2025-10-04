@@ -3174,15 +3174,15 @@ const HomePage = () => {
     const [customPrompt, setCustomPrompt] = useState("");
     const [customGeneratedCode, setCustomGeneratedCode] = useState<string | null>(null);
     const [loadingCustomCode, setLoadingCustomCode] = useState(false);
-    // Applied search term (only updates on Enter key press)
+    // Applied search term (updates after user stops typing)
     const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
-    // Handle Enter key press for search
-    const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
+    // Debounce search: update appliedSearchTerm after user stops typing for 500ms
+    useEffect(() => {
+      const debounceTimer = setTimeout(() => {
         setAppliedSearchTerm(searchTerm);
-        e.preventDefault();
-      }
-    };
+      }, 500);
+      return () => clearTimeout(debounceTimer);
+    }, [searchTerm]);
     // Effect to save selected components to localStorage
     useEffect(() => {
       const ids = selectedComponentsForAI.map(comp => comp.id);
@@ -3284,7 +3284,6 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
                 placeholder="Rechercher un composant..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleSearchKeyPress}
                 className="glass-input w-full pl-10 pr-4 py-3 rounded-2xl"
               />
             </div>
