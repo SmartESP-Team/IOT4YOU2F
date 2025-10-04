@@ -20,6 +20,8 @@ import {
   ExternalLink,
   Star,
   Home,
+  X,
+  Loader2,
 } from "lucide-react";
 
 // --- Types ---
@@ -3174,12 +3176,27 @@ const HomePage = () => {
     const [customPrompt, setCustomPrompt] = useState("");
     const [customGeneratedCode, setCustomGeneratedCode] = useState<string | null>(null);
     const [loadingCustomCode, setLoadingCustomCode] = useState(false);
-    // Applied search term (only updates when Enter key is pressed)
+    // Applied search term with debouncing
     const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
-    // Handle Enter key press to trigger search
+    const [isSearching, setIsSearching] = useState(false);
+    // Debounced search: updates 400ms after user stops typing
+    useEffect(() => {
+      if (searchTerm.length >= 2) {
+        setIsSearching(true);
+      }
+      const debounceTimer = setTimeout(() => {
+        setAppliedSearchTerm(searchTerm);
+        setIsSearching(false);
+      }, 400);
+      return () => {
+        clearTimeout(debounceTimer);
+      };
+    }, [searchTerm]);
+    // Handle Enter key press for immediate search
     const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         setAppliedSearchTerm(searchTerm);
+        setIsSearching(false);
       }
     };
     // Effect to save selected components to localStorage
@@ -3284,8 +3301,22 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleSearchKeyPress}
-                className="glass-input w-full pl-10 pr-4 py-3 rounded-2xl"
+                className="glass-input w-full pl-10 pr-24 py-3 rounded-2xl"
               />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                {isSearching && searchTerm && (
+                  <Loader2 className="text-blue-500 animate-spin" size={18} />
+                )}
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
             </div>
             <button
               onClick={() => setFilterOpen(!filterOpen)}
@@ -3383,6 +3414,12 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
               </div>
             )}
           </div>
+          {/* Results Counter */}
+          {(searchTerm || appliedSearchTerm) && (
+            <div className="mb-4 text-sm text-gray-600">
+              {filteredComponents.length} résultat{filteredComponents.length !== 1 ? 's' : ''} trouvé{filteredComponents.length !== 1 ? 's' : ''}
+            </div>
+          )}
           {/* Component Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredComponents.map((component) => (
