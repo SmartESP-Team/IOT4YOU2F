@@ -1737,254 +1737,48 @@ const HomeButton: React.FC<HomeButtonProps> = ({ onClick }) => (
 );
 
 // --- Script Circuit Page ---
-// --- Script Circuit Page ---
+
+
+
+
+
 const ScriptCircuitPage = () => {
+  // API Key Management
+  const [customApiKey, setCustomApiKey] = useState('');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState('');
+
   const [projectDescription, setProjectDescription] = useState("");
   const [generatedSVG, setGeneratedSVG] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Function to copy the AI system prompt to clipboard
+  // Save API key
+  const saveApiKey = () => {
+    setCustomApiKey(tempApiKey);
+    setShowApiKeyInput(false);
+    alert('✅ Clé API enregistrée avec succès !');
+  };
+
+  // Clear API key
+  const clearApiKey = () => {
+    setCustomApiKey('');
+    setTempApiKey('');
+    alert('🗑️ Clé API supprimée');
+  };
+
+  // Get API URL
+  const getApiUrl = () => {
+    const apiKey = customApiKey || "AIzaSyAg9vO1uRjzQxuIdVJcW-13-GL8AKVhl6I";
+    return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  };
+
   const copySystemPrompt = () => {
     const fullPrompt = `# Professional SVG Circuit Diagram Generator
 **MISSION**: Create PROFESSIONAL, ACCURATE SVG circuit diagrams that are so clear that anyone can understand the connections at a glance.
 ## 🚨 CRITICAL OUTPUT REQUIREMENT 🚨
 **OUTPUT ONLY THE SVG CODE - NO EXPLANATIONS, NO TEXT, NO COMMENTS**
 **RESPOND WITH PURE SVG MARKUP ONLY**
-## 🚫 ABSOLUTE RULE: NO WIRE LINES 🚫
-**NEVER DRAW ANY LINES, PATHS, OR WIRES BETWEEN COMPONENTS**
-**CONNECTIONS ARE SHOWN ONLY BY MATCHING NUMBERS ON PINS**
-**NO <line>, NO <path>, NO <polyline> ELEMENTS FOR CONNECTIONS**
-**THE NUMBERED PIN SYSTEM IS THE ONLY CONNECTION METHOD**
-## NO WIRE LINES - NUMBERS ONLY CONNECTION SYSTEM
-- **ZERO LINES**: Never draw wires, traces, or connection lines
-- **NUMBERED PINS**: Same number = connected together
-- **VISUAL CLARITY**: Clean layout with only numbered connection points
-- **NO CONNECTING ELEMENTS**: No lines, arrows, or paths between components
-## CRITICAL VISUAL REQUIREMENTS
-### 1. PIN PLACEMENT RULES (MANDATORY)
-- **PINS MUST BE EXACTLY ON COMPONENT EDGES** - Never floating outside or inside
-- **PIN CIRCLES positioned PRECISELY on the border** of rectangles/shapes
-- **PIN SPACING**: Minimum 25px between adjacent pins
-- **PIN SIZE**: 4px radius circles for visibility
-**EXACT PIN POSITIONING FORMULAS:**
-- **Right edge pins**: \`cx="componentX + componentWidth"\` \`cy="componentY + pinOffset"\`
-- **Left edge pins**: \`cx="componentX"\` \`cy="componentY + pinOffset"\`
-- **Top edge pins**: \`cx="componentX + pinOffset"\` \`cy="componentY"\`  
-- **Bottom edge pins**: \`cx="componentX + pinOffset"\` \`cy="componentY + componentHeight"\`
-**EXAMPLE**: If component is \`<rect x="200" y="300" width="150" height="100">\`:
-- Right edge pin at middle: \`<circle cx="350" cy="350" r="4"/>\` (200+150=350, 300+50=350)
-- Left edge pin at top: \`<circle cx="200" cy="320" r="4"/>\` (exactly at x=200)
-- Top edge pin: \`<circle cx="275" cy="300" r="4"/>\` (exactly at y=300)
-- Bottom edge pin: \`<circle cx="275" cy="400" r="4"/>\` (300+100=400)
-### 2. COMPONENT STANDARDS
-- **Minimum component size**: 120px width × 80px height
-- **Component spacing**: Minimum 150px between any two components
-- **Rounded corners**: \`rx="5"\` for professional appearance
-- **Border width**: \`stroke-width="2"\` for all components
-- **Component colors**:
-  - Microcontrollers: \`fill="#2C3E50"\` (dark blue-gray)
-  - Sensors: \`fill="#ECF0F1"\` (light gray)
-  - Displays: \`fill="#34495E"\` (medium gray)
-  - Power components: \`fill="#E74C3C"\` (red)
-  - LEDs: \`fill="#F39C12"\` (orange)
-### 3. PIN LABELING SYSTEM
-- **Format**: \`PINNAME-CONNECTION#\`
-- **Label placement**: 
-  - Left pins: Label 15px to the LEFT of pin (\`x="pinX - 15"\`)
-  - Right pins: Label 15px to the RIGHT of pin (\`x="pinX + 15"\`)
-  - Top pins: Label 10px ABOVE pin (\`y="pinY - 10"\`)
-  - Bottom pins: Label 15px BELOW pin (\`y="pinY + 15"\`)
-- **Text anchoring**:
-  - Left labels: \`text-anchor="end"\`
-  - Right labels: \`text-anchor="start"\`
-  - Top/Bottom labels: \`text-anchor="middle"\`
-### 4. CONNECTION COLOR CODING
-- **Power (Red)**: VCC, 3V3, 5V, VIN
-- **Ground (Black)**: GND, GND1, GND2
-- **Digital I/O (Blue)**: GPIO pins, SDA, SCL, CS, MOSI, MISO
-- **Analog (Green)**: A0, A1, ADC pins
-- **Special (Purple)**: RST, EN, CLK
-## SVG STRUCTURE TEMPLATE
-<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
-  <!-- Title -->
-  <text x="700" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#2C3E50">PROJECT_NAME Circuit Diagram</text>
-  <!-- ESP32 Example (Centered) -->
-  <rect x="600" y="400" width="200" height="150" rx="5" fill="#2C3E50" stroke="#34495E" stroke-width="2"/>
-  <text x="700" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="white">ESP32 DevKit</text>
-  <!-- ESP32 Left Pins (EXACTLY on left edge) -->
-  <circle cx="600" cy="440" r="4" fill="#E74C3C"/>
-  <text x="585" y="445" text-anchor="end" font-size="12" font-weight="bold" fill="#E74C3C">3V3-1</text>
-  <circle cx="600" cy="465" r="4" fill="#2C3E50"/>
-  <text x="585" y="470" text-anchor="end" font-size="12" font-weight="bold" fill="#2C3E50">GND-2</text>
-  <circle cx="600" cy="490" r="4" fill="#3498DB"/>
-  <text x="585" y="495" text-anchor="end" font-size="12" font-weight="bold" fill="#3498DB">GPIO21-3</text>
-  <circle cx="600" cy="515" r="4" fill="#3498DB"/>
-  <text x="585" y="520" text-anchor="end" font-size="12" font-weight="bold" fill="#3498DB">GPIO22-4</text>
-  <!-- ESP32 Right Pins (EXACTLY on right edge) -->
-  <circle cx="800" cy="440" r="4" fill="#27AE60"/>
-  <text x="815" y="445" text-anchor="start" font-size="12" font-weight="bold" fill="#27AE60">GPIO34-5</text>
-  <circle cx="800" cy="465" r="4" fill="#27AE60"/>
-  <text x="815" y="470" text-anchor="start" font-size="12" font-weight="bold" fill="#27AE60">GPIO35-6</text>
-  <!-- Sensor Example (Left side) -->
-  <rect x="200" y="300" width="150" height="100" rx="5" fill="#ECF0F1" stroke="#BDC3C7" stroke-width="2"/>
-  <text x="275" y="325" text-anchor="middle" font-size="14" font-weight="bold" fill="#2C3E50">BME280 Sensor</text>
-  <!-- Sensor Right Pins (EXACTLY on right edge x=350) -->
-  <circle cx="350" cy="330" r="4" fill="#E74C3C"/>
-  <text x="365" y="335" text-anchor="start" font-size="12" font-weight="bold" fill="#E74C3C">VCC-1</text>
-  <circle cx="350" cy="355" r="4" fill="#2C3E50"/>
-  <text x="365" y="360" text-anchor="start" font-size="12" font-weight="bold" fill="#2C3E50">GND-2</text>
-  <circle cx="350" cy="380" r="4" fill="#3498DB"/>
-  <text x="365" y="385" text-anchor="start" font-size="12" font-weight="bold" fill="#3498DB">SDA-3</text>
-  <!-- LED Example (Right side) -->
-  <circle cx="1000" cy="350" r="25" fill="#F39C12" stroke="#E67E22" stroke-width="2"/>
-  <text x="1000" y="325" text-anchor="middle" font-size="12" font-weight="bold" fill="#2C3E50">LED</text>
-  <!-- LED Pins -->
-  <circle cx="975" cy="350" r="4" fill="#27AE60"/>
-  <text x="960" y="355" text-anchor="end" font-size="12" font-weight="bold" fill="#27AE60">+-5</text>
-  <circle cx="1025" cy="350" r="4" fill="#2C3E50"/>
-  <text x="1040" y="355" text-anchor="start" font-size="12" font-weight="bold" fill="#2C3E50">--2</text>
-  <!-- Connection Legend -->
-  <rect x="50" y="800" width="300" height="150" rx="5" fill="#F8F9FA" stroke="#BDC3C7" stroke-width="1"/>
-  <text x="200" y="825" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C3E50">Connection Guide</text>
-  <text x="70" y="850" font-size="12" font-weight="bold" fill="#E74C3C">Power (Red): 3V3-1, VCC-1</text>
-  <text x="70" y="870" font-size="12" font-weight="bold" fill="#2C3E50">Ground (Black): GND-2</text>
-  <text x="70" y="890" font-size="12" font-weight="bold" fill="#3498DB">I2C Data: SDA-3, GPIO21-3</text>
-  <text x="70" y="910" font-size="12" font-weight="bold" fill="#27AE60">Analog: GPIO34-5, GPIO35-6</text>
-  <!-- Professional Grid (Optional) -->
-  <defs>
-    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ECF0F1" stroke-width="1" opacity="0.3"/>
-    </pattern>
-  </defs>
-  <rect x="0" y="0" width="1400" height="1000" fill="url(#grid)" opacity="0.5"/>
-</svg>
-## LAYOUT STRATEGY
-### Component Positioning:
-1. **ESP32/Main MCU**: Center (x=600-800, y=400-550)
-2. **Input Sensors**: Left side (x=150-400, y=200-700)  
-3. **Output Devices**: Right side (x=900-1250, y=200-700)
-4. **Power Components**: Top area (x=400-1000, y=100-200)
-5. **Communication modules**: Bottom area (x=400-1000, y=700-850)
-### Spacing Rules:
-- **Minimum 150px between components**
-- **Pin spacing: 25px minimum**
-- **Text clearance: 15px from pins**
-- **Border margins: 50px from SVG edges**
-## ADVANCED FEATURES
-### Visual Hierarchy:
-- **Drop shadows** for depth: \`filter="drop-shadow(2px 2px 4px rgba(0,0,0,0.1))"\`
-- **Gradient backgrounds** for power sections
-- **Consistent typography** throughout
-### Professional Touches:
-- **Component part numbers** in smaller text
-- **Voltage/current ratings** where relevant  
-- **Wire gauge recommendations** in legend
-- **Breadboard pin mapping** if applicable
-## 📋 DETAILED PROJECT ANALYSIS REQUIREMENTS
-### STEP 1: MICROCONTROLLER ANALYSIS
-**Extract EXACT pin information:**
-- **Board type**: ESP32, ESP8266, Arduino Uno, Nano, etc.
-- **Pin mapping**: Physical pin numbers AND GPIO names
-- **Used pins only**: List every single pin mentioned in code/documentation
-- **Pin functions**: Digital, Analog, PWM, I2C, SPI, UART
-**Example Format:**
-\`\`\`
-ESP32 DevKit V1:
-- GPIO21 (Physical Pin 33) → SDA for I2C
-- GPIO22 (Physical Pin 36) → SCL for I2C  
-- GPIO4 (Physical Pin 26) → Digital Output for LED
-- GPIO34 (Physical Pin 6) → Analog Input for Sensor
-- 3V3 (Physical Pin 3) → Power Supply
-- GND (Physical Pin 14) → Ground
-\`\`\`
-### STEP 2: COMPONENT DETAILED BREAKDOWN
-**For EACH component, extract:**
-**A) SENSORS (BME280, DHT22, MPU6050, etc.)**
-- **Model**: Exact part number
-- **Pin count**: How many pins total
-- **Pin names**: VCC, GND, SDA, SCL, DATA, etc.
-- **Voltage**: 3.3V or 5V
-- **Protocol**: I2C, SPI, Digital, Analog
-**B) DISPLAYS (OLED, LCD, 7-Segment)**
-- **Size/Type**: 0.96" OLED, 16x2 LCD, etc.
-- **Interface**: I2C, SPI, Parallel
-- **Pin mapping**: VCC, GND, SDA, SCL, CS, DC, RST
-**C) ACTUATORS (Motors, Servos, Relays)**
-- **Type**: Servo SG90, DC Motor, Stepper, Relay module
-- **Control pins**: Signal, Enable, Direction pins
-- **Power requirements**: Separate power supply needed?
-**D) INPUT DEVICES (Buttons, Potentiometers, Encoders)**
-- **Pin configuration**: Pull-up/pull-down requirements
-- **Connection type**: Digital input, analog input
-### STEP 3: CONNECTION MAPPING TABLE
-**Create exact pin-to-pin mapping:**
-| Component | Component Pin | Wire Color | MCU Pin | MCU GPIO | Function |
-|-----------|---------------|------------|---------|----------|----------|
-| BME280 | VCC | Red | Pin 3 | 3V3 | Power |
-| BME280 | GND | Black | Pin 14 | GND | Ground |
-| BME280 | SDA | Blue | Pin 33 | GPIO21 | I2C Data |
-| BME280 | SCL | Yellow | Pin 36 | GPIO22 | I2C Clock |
-| LED | Anode (+) | Red | Pin 26 | GPIO4 | Digital Out |
-| LED | Cathode (-) | Black | Pin 14 | GND | Ground |
-### STEP 4: SPECIAL CONSIDERATIONS
-**Identify and document:**
-- **Pull-up resistors**: 4.7kΩ for I2C lines
-- **Current limiting resistors**: 220Ω for LEDs
-- **Voltage dividers**: For analog sensors
-- **Decoupling capacitors**: 100nF ceramic caps
-- **External power**: 12V supply for motors
-### STEP 5: SCHOOL PROJECT CONTEXT
-**Educational clarity requirements:**
-- **Beginner-friendly**: Assume zero electronics knowledge
-- **Clear labeling**: Every connection must be obvious
-- **Safety notes**: Voltage warnings, polarity warnings
-- **Breadboard friendly**: Standard component spacing
-- **Parts list**: Exact components with part numbers
-### EXAMPLE: COMPLETE PROJECT ANALYSIS
-**Project**: "Arduino Weather Station with OLED Display"
-**Components Identified:**
-1. **Arduino Uno R3**
-   - Pin A4 (SDA) → OLED SDA
-   - Pin A5 (SCL) → OLED SCL
-   - Pin 5V → Power rail
-   - Pin GND → Ground rail
-2. **BME280 Temperature/Humidity Sensor**
-   - VCC pin → 3.3V (not 5V!)
-   - GND pin → Ground
-   - SDA pin → Arduino A4
-   - SCL pin → Arduino A5
-3. **0.96" OLED Display (SSD1306)**
-   - VCC pin → 5V power
-   - GND pin → Ground
-   - SDA pin → Arduino A4  
-   - SCL pin → Arduino A5
-4. **Support Components**
-   - 2x 4.7kΩ resistors (I2C pull-ups)
-   - Breadboard
-   - Jumper wires
-**Connection Summary:**
-- I2C Bus: A4 (SDA), A5 (SCL) shared between OLED and BME280
-- Power: 5V and 3.3V rails from Arduino
-- Ground: Common ground for all components
-## VALIDATION CHECKLIST
-- [ ] All pins are EXACTLY on component edges (use mathematical formulas)
-- [ ] Pin coordinates calculated: cx = componentX + componentWidth for right edge
-- [ ] Pin coordinates calculated: cx = componentX for left edge  
-- [ ] Pin coordinates calculated: cy = componentY for top edge
-- [ ] Pin coordinates calculated: cy = componentY + componentHeight for bottom edge
-- [ ] Pin labels are properly positioned and readable
-- [ ] Same connection numbers appear on all connected pins
-- [ ] Color coding is consistent throughout
-- [ ] Component spacing allows for clear reading
-- [ ] Legend explains all connections clearly
-- [ ] SVG uses full 1400×1000 space efficiently
-- [ ] Professional color scheme and typography
-**RESULT**: A circuit diagram so clear that anyone can build the project by following the numbered connections, with zero ambiguity about pin locations or connections.
----
-## 🎯 FINAL INSTRUCTION 🎯
-**ANALYZE THE PROJECT AND OUTPUT ONLY THE SVG CODE**
-**NO EXTRA TEXT - JUST THE SVG file
 ${projectDescription}`;
 
     navigator.clipboard.writeText(fullPrompt)
@@ -1992,15 +1786,13 @@ ${projectDescription}`;
       .catch(() => alert("❌ Échec de la copie."));
   };
 
-  // Function to render SVG from the description box
   const renderSVFFromDescription = () => {
-    // Simple validation: check if the input looks like SVG
     if (!projectDescription.trim().startsWith('<svg') || !projectDescription.trim().endsWith('</svg>')) {
       setError("❌ Le texte dans la description ne semble pas être un code SVG valide. Assurez-vous qu'il commence par <svg et se termine par </svg>.");
       return;
     }
     setGeneratedSVG(projectDescription.trim());
-    setError(""); // Clear any previous errors
+    setError("");
   };
 
   const generateCircuitSVG = async () => {
@@ -2014,262 +1806,20 @@ ${projectDescription}`;
     setError("");
 
     try {
-      // This entire block is a STRING sent to the AI. The code examples within it are NOT executed by JavaScript.
-      // Linters may show false errors here. You can ignore them or add a linter ignore comment if needed.
-      const systemPrompt = `
-# Professional SVG Circuit Diagram Generator
+      const systemPrompt = `# Professional SVG Circuit Diagram Generator
 **MISSION**: Create PROFESSIONAL, ACCURATE SVG circuit diagrams that are so clear that anyone can understand the connections at a glance.
 ## 🚨 CRITICAL OUTPUT REQUIREMENT 🚨
 **OUTPUT ONLY THE SVG CODE - NO EXPLANATIONS, NO TEXT, NO COMMENTS**
 **RESPOND WITH PURE SVG MARKUP ONLY**
-## 🚫 ABSOLUTE RULE: NO WIRE LINES 🚫
-**NEVER DRAW ANY LINES, PATHS, OR WIRES BETWEEN COMPONENTS**
-**CONNECTIONS ARE SHOWN ONLY BY MATCHING NUMBERS ON PINS**
-**NO <line>, NO <path>, NO <polyline> ELEMENTS FOR CONNECTIONS**
-**THE NUMBERED PIN SYSTEM IS THE ONLY CONNECTION METHOD**
-## NO WIRE LINES - NUMBERS ONLY CONNECTION SYSTEM
-- **ZERO LINES**: Never draw wires, traces, or connection lines
-- **NUMBERED PINS**: Same number = connected together
-- **VISUAL CLARITY**: Clean layout with only numbered connection points
-- **NO CONNECTING ELEMENTS**: No lines, arrows, or paths between components
-## CRITICAL VISUAL REQUIREMENTS
-### 1. PIN PLACEMENT RULES (MANDATORY)
-- **PINS MUST BE EXACTLY ON COMPONENT EDGES** - Never floating outside or inside
-- **PIN CIRCLES positioned PRECISELY on the border** of rectangles/shapes
-- **PIN SPACING**: Minimum 25px between adjacent pins
-- **PIN SIZE**: 4px radius circles for visibility
-**EXACT PIN POSITIONING FORMULAS:**
-- **Right edge pins**: \`cx="componentX + componentWidth"\` \`cy="componentY + pinOffset"\`
-- **Left edge pins**: \`cx="componentX"\` \`cy="componentY + pinOffset"\`
-- **Top edge pins**: \`cx="componentX + pinOffset"\` \`cy="componentY"\`  
-- **Bottom edge pins**: \`cx="componentX + pinOffset"\` \`cy="componentY + componentHeight"\`
-**EXAMPLE**: If component is \`<rect x="200" y="300" width="150" height="100">\`:
-- Right edge pin at middle: \`<circle cx="350" cy="350" r="4"/>\` (200+150=350, 300+50=350)
-- Left edge pin at top: \`<circle cx="200" cy="320" r="4"/>\` (exactly at x=200)
-- Top edge pin: \`<circle cx="275" cy="300" r="4"/>\` (exactly at y=300)
-- Bottom edge pin: \`<circle cx="275" cy="400" r="4"/>\` (300+100=400)
-### 2. COMPONENT STANDARDS
-- **Minimum component size**: 120px width × 80px height
-- **Component spacing**: Minimum 150px between any two components
-- **Rounded corners**: \`rx="5"\` for professional appearance
-- **Border width**: \`stroke-width="2"\` for all components
-- **Component colors**:
-  - Microcontrollers: \`fill="#2C3E50"\` (dark blue-gray)
-  - Sensors: \`fill="#ECF0F1"\` (light gray)
-  - Displays: \`fill="#34495E"\` (medium gray)
-  - Power components: \`fill="#E74C3C"\` (red)
-  - LEDs: \`fill="#F39C12"\` (orange)
-### 3. PIN LABELING SYSTEM
-- **Format**: \`PINNAME-CONNECTION#\`
-- **Label placement**: 
-  - Left pins: Label 15px to the LEFT of pin (\`x="pinX - 15"\`)
-  - Right pins: Label 15px to the RIGHT of pin (\`x="pinX + 15"\`)
-  - Top pins: Label 10px ABOVE pin (\`y="pinY - 10"\`)
-  - Bottom pins: Label 15px BELOW pin (\`y="pinY + 15"\`)
-- **Text anchoring**:
-  - Left labels: \`text-anchor="end"\`
-  - Right labels: \`text-anchor="start"\`
-  - Top/Bottom labels: \`text-anchor="middle"\`
-### 4. CONNECTION COLOR CODING
-- **Power (Red)**: VCC, 3V3, 5V, VIN
-- **Ground (Black)**: GND, GND1, GND2
-- **Digital I/O (Blue)**: GPIO pins, SDA, SCL, CS, MOSI, MISO
-- **Analog (Green)**: A0, A1, ADC pins
-- **Special (Purple)**: RST, EN, CLK
-## SVG STRUCTURE TEMPLATE
-<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
-  <!-- Title -->
-  <text x="700" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#2C3E50">PROJECT_NAME Circuit Diagram</text>
-  <!-- ESP32 Example (Centered) -->
-  <rect x="600" y="400" width="200" height="150" rx="5" fill="#2C3E50" stroke="#34495E" stroke-width="2"/>
-  <text x="700" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="white">ESP32 DevKit</text>
-  <!-- ESP32 Left Pins (EXACTLY on left edge) -->
-  <circle cx="600" cy="440" r="4" fill="#E74C3C"/>
-  <text x="585" y="445" text-anchor="end" font-size="12" font-weight="bold" fill="#E74C3C">3V3-1</text>
-  <circle cx="600" cy="465" r="4" fill="#2C3E50"/>
-  <text x="585" y="470" text-anchor="end" font-size="12" font-weight="bold" fill="#2C3E50">GND-2</text>
-  <circle cx="600" cy="490" r="4" fill="#3498DB"/>
-  <text x="585" y="495" text-anchor="end" font-size="12" font-weight="bold" fill="#3498DB">GPIO21-3</text>
-  <circle cx="600" cy="515" r="4" fill="#3498DB"/>
-  <text x="585" y="520" text-anchor="end" font-size="12" font-weight="bold" fill="#3498DB">GPIO22-4</text>
-  <!-- ESP32 Right Pins (EXACTLY on right edge) -->
-  <circle cx="800" cy="440" r="4" fill="#27AE60"/>
-  <text x="815" y="445" text-anchor="start" font-size="12" font-weight="bold" fill="#27AE60">GPIO34-5</text>
-  <circle cx="800" cy="465" r="4" fill="#27AE60"/>
-  <text x="815" y="470" text-anchor="start" font-size="12" font-weight="bold" fill="#27AE60">GPIO35-6</text>
-  <!-- Sensor Example (Left side) -->
-  <rect x="200" y="300" width="150" height="100" rx="5" fill="#ECF0F1" stroke="#BDC3C7" stroke-width="2"/>
-  <text x="275" y="325" text-anchor="middle" font-size="14" font-weight="bold" fill="#2C3E50">BME280 Sensor</text>
-  <!-- Sensor Right Pins (EXACTLY on right edge x=350) -->
-  <circle cx="350" cy="330" r="4" fill="#E74C3C"/>
-  <text x="365" y="335" text-anchor="start" font-size="12" font-weight="bold" fill="#E74C3C">VCC-1</text>
-  <circle cx="350" cy="355" r="4" fill="#2C3E50"/>
-  <text x="365" y="360" text-anchor="start" font-size="12" font-weight="bold" fill="#2C3E50">GND-2</text>
-  <circle cx="350" cy="380" r="4" fill="#3498DB"/>
-  <text x="365" y="385" text-anchor="start" font-size="12" font-weight="bold" fill="#3498DB">SDA-3</text>
-  <!-- LED Example (Right side) -->
-  <circle cx="1000" cy="350" r="25" fill="#F39C12" stroke="#E67E22" stroke-width="2"/>
-  <text x="1000" y="325" text-anchor="middle" font-size="12" font-weight="bold" fill="#2C3E50">LED</text>
-  <!-- LED Pins -->
-  <circle cx="975" cy="350" r="4" fill="#27AE60"/>
-  <text x="960" y="355" text-anchor="end" font-size="12" font-weight="bold" fill="#27AE60">+-5</text>
-  <circle cx="1025" cy="350" r="4" fill="#2C3E50"/>
-  <text x="1040" y="355" text-anchor="start" font-size="12" font-weight="bold" fill="#2C3E50">--2</text>
-  <!-- Connection Legend -->
-  <rect x="50" y="800" width="300" height="150" rx="5" fill="#F8F9FA" stroke="#BDC3C7" stroke-width="1"/>
-  <text x="200" y="825" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C3E50">Connection Guide</text>
-  <text x="70" y="850" font-size="12" font-weight="bold" fill="#E74C3C">Power (Red): 3V3-1, VCC-1</text>
-  <text x="70" y="870" font-size="12" font-weight="bold" fill="#2C3E50">Ground (Black): GND-2</text>
-  <text x="70" y="890" font-size="12" font-weight="bold" fill="#3498DB">I2C Data: SDA-3, GPIO21-3</text>
-  <text x="70" y="910" font-size="12" font-weight="bold" fill="#27AE60">Analog: GPIO34-5, GPIO35-6</text>
-  <!-- Professional Grid (Optional) -->
-  <defs>
-    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ECF0F1" stroke-width="1" opacity="0.3"/>
-    </pattern>
-  </defs>
-  <rect x="0" y="0" width="1400" height="1000" fill="url(#grid)" opacity="0.5"/>
-</svg>
-## LAYOUT STRATEGY
-### Component Positioning:
-1. **ESP32/Main MCU**: Center (x=600-800, y=400-550)
-2. **Input Sensors**: Left side (x=150-400, y=200-700)  
-3. **Output Devices**: Right side (x=900-1250, y=200-700)
-4. **Power Components**: Top area (x=400-1000, y=100-200)
-5. **Communication modules**: Bottom area (x=400-1000, y=700-850)
-### Spacing Rules:
-- **Minimum 150px between components**
-- **Pin spacing: 25px minimum**
-- **Text clearance: 15px from pins**
-- **Border margins: 50px from SVG edges**
-## ADVANCED FEATURES
-### Visual Hierarchy:
-- **Drop shadows** for depth: \`filter="drop-shadow(2px 2px 4px rgba(0,0,0,0.1))"\`
-- **Gradient backgrounds** for power sections
-- **Consistent typography** throughout
-### Professional Touches:
-- **Component part numbers** in smaller text
-- **Voltage/current ratings** where relevant  
-- **Wire gauge recommendations** in legend
-- **Breadboard pin mapping** if applicable
-## 📋 DETAILED PROJECT ANALYSIS REQUIREMENTS
-### STEP 1: MICROCONTROLLER ANALYSIS
-**Extract EXACT pin information:**
-- **Board type**: ESP32, ESP8266, Arduino Uno, Nano, etc.
-- **Pin mapping**: Physical pin numbers AND GPIO names
-- **Used pins only**: List every single pin mentioned in code/documentation
-- **Pin functions**: Digital, Analog, PWM, I2C, SPI, UART
-**Example Format:**
-\`\`\`
-ESP32 DevKit V1:
-- GPIO21 (Physical Pin 33) → SDA for I2C
-- GPIO22 (Physical Pin 36) → SCL for I2C  
-- GPIO4 (Physical Pin 26) → Digital Output for LED
-- GPIO34 (Physical Pin 6) → Analog Input for Sensor
-- 3V3 (Physical Pin 3) → Power Supply
-- GND (Physical Pin 14) → Ground
-\`\`\`
-### STEP 2: COMPONENT DETAILED BREAKDOWN
-**For EACH component, extract:**
-**A) SENSORS (BME280, DHT22, MPU6050, etc.)**
-- **Model**: Exact part number
-- **Pin count**: How many pins total
-- **Pin names**: VCC, GND, SDA, SCL, DATA, etc.
-- **Voltage**: 3.3V or 5V
-- **Protocol**: I2C, SPI, Digital, Analog
-**B) DISPLAYS (OLED, LCD, 7-Segment)**
-- **Size/Type**: 0.96" OLED, 16x2 LCD, etc.
-- **Interface**: I2C, SPI, Parallel
-- **Pin mapping**: VCC, GND, SDA, SCL, CS, DC, RST
-**C) ACTUATORS (Motors, Servos, Relays)**
-- **Type**: Servo SG90, DC Motor, Stepper, Relay module
-- **Control pins**: Signal, Enable, Direction pins
-- **Power requirements**: Separate power supply needed?
-**D) INPUT DEVICES (Buttons, Potentiometers, Encoders)**
-- **Pin configuration**: Pull-up/pull-down requirements
-- **Connection type**: Digital input, analog input
-### STEP 3: CONNECTION MAPPING TABLE
-**Create exact pin-to-pin mapping:**
-| Component | Component Pin | Wire Color | MCU Pin | MCU GPIO | Function |
-|-----------|---------------|------------|---------|----------|----------|
-| BME280 | VCC | Red | Pin 3 | 3V3 | Power |
-| BME280 | GND | Black | Pin 14 | GND | Ground |
-| BME280 | SDA | Blue | Pin 33 | GPIO21 | I2C Data |
-| BME280 | SCL | Yellow | Pin 36 | GPIO22 | I2C Clock |
-| LED | Anode (+) | Red | Pin 26 | GPIO4 | Digital Out |
-| LED | Cathode (-) | Black | Pin 14 | GND | Ground |
-### STEP 4: SPECIAL CONSIDERATIONS
-**Identify and document:**
-- **Pull-up resistors**: 4.7kΩ for I2C lines
-- **Current limiting resistors**: 220Ω for LEDs
-- **Voltage dividers**: For analog sensors
-- **Decoupling capacitors**: 100nF ceramic caps
-- **External power**: 12V supply for motors
-### STEP 5: SCHOOL PROJECT CONTEXT
-**Educational clarity requirements:**
-- **Beginner-friendly**: Assume zero electronics knowledge
-- **Clear labeling**: Every connection must be obvious
-- **Safety notes**: Voltage warnings, polarity warnings
-- **Breadboard friendly**: Standard component spacing
-- **Parts list**: Exact components with part numbers
-### EXAMPLE: COMPLETE PROJECT ANALYSIS
-**Project**: "Arduino Weather Station with OLED Display"
-**Components Identified:**
-1. **Arduino Uno R3**
-   - Pin A4 (SDA) → OLED SDA
-   - Pin A5 (SCL) → OLED SCL
-   - Pin 5V → Power rail
-   - Pin GND → Ground rail
-2. **BME280 Temperature/Humidity Sensor**
-   - VCC pin → 3.3V (not 5V!)
-   - GND pin → Ground
-   - SDA pin → Arduino A4
-   - SCL pin → Arduino A5
-3. **0.96" OLED Display (SSD1306)**
-   - VCC pin → 5V power
-   - GND pin → Ground
-   - SDA pin → Arduino A4  
-   - SCL pin → Arduino A5
-4. **Support Components**
-   - 2x 4.7kΩ resistors (I2C pull-ups)
-   - Breadboard
-   - Jumper wires
-**Connection Summary:**
-- I2C Bus: A4 (SDA), A5 (SCL) shared between OLED and BME280
-- Power: 5V and 3.3V rails from Arduino
-- Ground: Common ground for all components
-## VALIDATION CHECKLIST
-- [ ] All pins are EXACTLY on component edges (use mathematical formulas)
-- [ ] Pin coordinates calculated: cx = componentX + componentWidth for right edge
-- [ ] Pin coordinates calculated: cx = componentX for left edge  
-- [ ] Pin coordinates calculated: cy = componentY for top edge
-- [ ] Pin coordinates calculated: cy = componentY + componentHeight for bottom edge
-- [ ] Pin labels are properly positioned and readable
-- [ ] Same connection numbers appear on all connected pins
-- [ ] Color coding is consistent throughout
-- [ ] Component spacing allows for clear reading
-- [ ] Legend explains all connections clearly
-- [ ] SVG uses full 1400×1000 space efficiently
-- [ ] Professional color scheme and typography
-**RESULT**: A circuit diagram so clear that anyone can build the project by following the numbered connections, with zero ambiguity about pin locations or connections.
----
-## 🎯 FINAL INSTRUCTION 🎯
-**ANALYZE THE PROJECT AND OUTPUT ONLY THE SVG CODE**
-**NO EXTRA TEXT - JUST THE SVG file
 ${projectDescription}`;
 
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAg9vO1uRjzQxuIdVJcW-13-GL8AKVhl6I",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
-          }),
-        }
-      );
+      const response = await fetch(getApiUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+        }),
+      });
 
       const data = await response.json();
 
@@ -2277,18 +1827,15 @@ ${projectDescription}`;
         throw new Error(data.error.message || "API returned an error object.");
       }
 
-      // Get the text from the API response structure
-      const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I received an empty or unreadable response from the API.";
+      const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+        "Sorry, I received an empty or unreadable response from the API.";
       
       if (aiResponseText !== "Sorry, I received an empty or unreadable response from the API.") {
         const aiResponse = aiResponseText.trim();
-
-        // Extract SVG from the response (assuming it's wrapped in ```svg ... ```)
         const svgMatch = aiResponse.match(/```svg\s*([\s\S]*?)\s*```/);
         if (svgMatch && svgMatch[1]) {
           setGeneratedSVG(svgMatch[1]);
         } else {
-          // If no SVG code block found, try to find SVG tags
           const svgTagMatch = aiResponse.match(/<svg[\s\S]*?<\/svg>/);
           if (svgTagMatch) {
             setGeneratedSVG(svgTagMatch[0]);
@@ -2301,7 +1848,7 @@ ${projectDescription}`;
       }
     } catch (error) {
       console.error("Erreur API Gemini:", error);
-      setError("❌ Échec de la connexion à l'IA. Vérifiez le réseau ou l'API key.");
+      setError("❌ Échec de la connexion à l'IA. Vérifiez votre clé API ou le réseau.");
     } finally {
       setIsLoading(false);
     }
@@ -2331,8 +1878,15 @@ ${projectDescription}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <IconBackground />
-      <HomeButton onClick={() => setCurrentPage("home")} />
+      {/* Home Button - Reloads the page */}
+      <button
+        onClick={() => window.location.reload()}
+        className="fixed top-6 left-6 z-50 glass-button rounded-2xl px-6 py-3 flex items-center space-x-2 text-blue-600 font-semibold shadow-lg"
+      >
+        <Home size={20} />
+        <span>Accueil</span>
+      </button>
+      
       <nav className="glass-nav sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -2340,9 +1894,58 @@ ${projectDescription}`;
               <Zap className="text-blue-600" size={32} />
               <span className="text-2xl font-bold text-gray-800">Générateur de Schémas Circuits</span>
             </div>
+            <button
+              onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+              className="glass-button px-4 py-2 rounded-2xl text-sm font-medium text-purple-600 flex items-center space-x-2"
+            >
+              <Settings size={18} />
+              <span>{customApiKey ? 'Clé API configurée' : 'Configurer API'}</span>
+            </button>
           </div>
         </div>
       </nav>
+
+      {showApiKeyInput && (
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="glass-card rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-3">Configuration de la clé API Gemini</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Entrez votre propre clé API Gemini pour utiliser vos quotas personnels. 
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                Obtenir une clé API
+              </a>
+            </p>
+            <div className="flex gap-3">
+              <input
+                type="password"
+                value={tempApiKey}
+                onChange={(e) => setTempApiKey(e.target.value)}
+                placeholder="AIzaSy..."
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <button
+                onClick={saveApiKey}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Enregistrer
+              </button>
+              {customApiKey && (
+                <button
+                  onClick={clearApiKey}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Supprimer
+                </button>
+              )}
+            </div>
+            {customApiKey && (
+              <p className="text-xs text-green-600 mt-2">
+                ✓ Clé API active : {customApiKey.substring(0, 10)}...
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
@@ -2379,7 +1982,6 @@ ${projectDescription}`;
               )}
             </button>
 
-            {/* NEW: Button to copy the system prompt */}
             <button
               onClick={copySystemPrompt}
               className="glass-button px-6 py-3 rounded-2xl font-semibold flex items-center justify-center space-x-2 text-purple-600"
@@ -2388,7 +1990,6 @@ ${projectDescription}`;
               <span>Copier le Prompt</span>
             </button>
 
-            {/* NEW: Button to render SVG from description */}
             <button
               onClick={renderSVFFromDescription}
               className="glass-button px-6 py-3 rounded-2xl font-semibold flex items-center justify-center space-x-2 text-indigo-600"
@@ -2472,6 +2073,8 @@ ${projectDescription}`;
     </div>
   );
 };
+
+
 // --- Main App Component ---
 function App() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -3156,9 +2759,16 @@ const HomePage = () => {
       </div>
     </div>
   );
+  
+  const ComponentsPage = () => {
+  // API Key Management
+  const [customApiKey, setCustomApiKey] = useState(() => {
+    return localStorage.getItem('gemini_api_key_components') || '';
+  });
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState(customApiKey);
 
-const ComponentsPage = () => {
-  // State for multi-selection and custom prompt (with persistence)
+  // Existing states
   const [selectedComponentsForAI, setSelectedComponentsForAI] = useState<Component[]>(() => {
     const savedIds = localStorage.getItem('selectedComponentIds');
     if (savedIds) {
@@ -3176,13 +2786,33 @@ const ComponentsPage = () => {
   const [customPrompt, setCustomPrompt] = useState("");
   const [customGeneratedCode, setCustomGeneratedCode] = useState<string | null>(null);
   const [loadingCustomCode, setLoadingCustomCode] = useState(false);
-  
-  // 🔥 FIX: Separate searchTerm from appliedSearchTerm
   const [searchTerm, setSearchTerm] = useState("");
   const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  // 🔥 DEBOUNCE: Apply search after 400ms of inactivity
+  // Save API key to localStorage
+  const saveApiKey = () => {
+    localStorage.setItem('gemini_api_key_components', tempApiKey);
+    setCustomApiKey(tempApiKey);
+    setShowApiKeyInput(false);
+    alert('✅ Clé API enregistrée avec succès !');
+  };
+
+  // Clear API key
+  const clearApiKey = () => {
+    localStorage.removeItem('gemini_api_key_components');
+    setCustomApiKey('');
+    setTempApiKey('');
+    alert('🗑️ Clé API supprimée');
+  };
+
+  // Get API URL with custom or default key
+  const getApiUrl = () => {
+    const apiKey = customApiKey || "AIzaSyAg9vO1uRjzQxuIdVJcW-13-GL8AKVhl6I";
+    return `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  };
+
+  // Debounce search
   useEffect(() => {
     if (searchTerm.length >= 2) {
       setIsSearching(true);
@@ -3193,12 +2823,9 @@ const ComponentsPage = () => {
       setIsSearching(false);
     }, 400);
 
-    return () => {
-      clearTimeout(debounceTimer);
-    };
+    return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
 
-  // Handle Enter key press for immediate search
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setAppliedSearchTerm(searchTerm);
@@ -3206,13 +2833,11 @@ const ComponentsPage = () => {
     }
   };
 
-  // Effect to save selected components to localStorage
   useEffect(() => {
     const ids = selectedComponentsForAI.map(comp => comp.id);
     localStorage.setItem('selectedComponentIds', JSON.stringify(ids));
   }, [selectedComponentsForAI]);
 
-  // Toggle component selection
   const toggleComponentSelectionForAI = (component: Component) => {
     setSelectedComponentsForAI(prev => {
       if (prev.find(c => c.id === component.id)) {
@@ -3223,7 +2848,6 @@ const ComponentsPage = () => {
     });
   };
 
-  // Generate custom code based on selected components and prompt
   const generateCustomCode = async () => {
     if (selectedComponentsForAI.length === 0) {
       alert("Veuillez sélectionner au moins un composant.");
@@ -3256,11 +2880,9 @@ Génère une réponse complète, pédagogique et utile. Cela peut être :
 
 Le tout doit être clair, concis et directement utilisable par un étudiant ou un débutant.`;
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(getApiUrl(), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
         }),
@@ -3278,20 +2900,18 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
 
     } catch (error) {
       console.error("Erreur API Gemini (Custom):", error);
-      setCustomGeneratedCode("❌ Échec de la connexion à l'IA. Vérifiez le réseau ou l'API key.");
+      setCustomGeneratedCode("❌ Échec de la connexion à l'IA. Vérifiez votre clé API ou le réseau.");
     } finally {
       setLoadingCustomCode(false);
     }
   };
 
-  // Clear selection
   const clearSelection = () => {
     setSelectedComponentsForAI([]);
     setCustomPrompt("");
     setCustomGeneratedCode(null);
   };
 
-  // 🔥 FIX: Filter using appliedSearchTerm (not searchTerm)
   const filteredComponents = iotComponents.filter((component) =>
     component.name.toLowerCase().includes(appliedSearchTerm.toLowerCase())
   );
@@ -3303,16 +2923,64 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
       
       <nav className="glass-nav sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-center space-x-2">
-            <Cpu className="text-blue-600" size={32} />
-            <span className="text-2xl font-bold text-gray-800">
-              IOT4YOU2 – Catalogue de composants IoT
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Cpu className="text-blue-600" size={32} />
+              <span className="text-2xl font-bold text-gray-800">
+                IOT4YOU2 – Catalogue de composants IoT
+              </span>
+            </div>
+            {/* API Key Button */}
+            <button
+              onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+              className="glass-button px-4 py-2 rounded-2xl text-sm font-medium text-purple-600 flex items-center space-x-2"
+            >
+              <Settings size={18} />
+              <span>{customApiKey ? 'Clé API configurée' : 'Configurer API'}</span>
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Search Bar - 🔥 FIX APPLIED */}
+      {/* API Key Configuration Panel */}
+      {showApiKeyInput && (
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="glass-card rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-3">Configuration de la clé API Gemini</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Entrez votre propre clé API Gemini pour utiliser vos quotas personnels. 
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                Obtenir une clé API
+              </a>
+            </p>
+            <div className="flex gap-3">
+              <input
+                type="password"
+                value={tempApiKey}
+                onChange={(e) => setTempApiKey(e.target.value)}
+                placeholder="AIzaSy..."
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <button
+                onClick={saveApiKey}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Enregistrer
+              </button>
+              {customApiKey && (
+                <button
+                  onClick={clearApiKey}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Supprimer
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Bar */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
@@ -3472,7 +3140,6 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
                 </p>
               </div>
               
-              {/* Add to AI Selection Button */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3484,7 +3151,6 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
                 +
               </button>
               
-              {/* YouTube Search Button */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3502,7 +3168,7 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
         </div>
       </div>
 
-      {/* Modal for Component Details */}
+      {/* Modal remains the same as before */}
       {selectedComponent && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="glass-card rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -3598,7 +3264,6 @@ Le tout doit être clair, concis et directement utilisable par un étudiant ou u
     </div>
   );
 };
- 
   const CustomAppsPage = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
     <IconBackground />
