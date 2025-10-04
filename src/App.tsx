@@ -1774,7 +1774,7 @@ const ScriptCircuitPage = () => {
   };
 
   const copySystemPrompt = () => {
-    const fullPrompt = `# Professional SVG Circuit Diagram Generator
+     const fullPrompt = `# Professional SVG Circuit Diagram Generator
 **MISSION**: Create PROFESSIONAL, ACCURATE SVG circuit diagrams that are so clear that anyone can understand the connections at a glance.
 ## 🚨 CRITICAL OUTPUT REQUIREMENT 🚨
 **OUTPUT ONLY THE SVG CODE - NO EXPLANATIONS, NO TEXT, NO COMMENTS**
@@ -1784,7 +1784,7 @@ const ScriptCircuitPage = () => {
 **CONNECTIONS ARE SHOWN ONLY BY MATCHING NUMBERS ON PINS**
 **NO <line>, NO <path>, NO <polyline> ELEMENTS FOR CONNECTIONS**
 **THE NUMBERED PIN SYSTEM IS THE ONLY CONNECTION METHOD**
-## NO WIRE LINES - NUMBERS ONLY CONNECTION SYSTEM
+## NO COLORED WIRE LINES - NUMBERS ONLY CONNECTION SYSTEM
 - **ZERO LINES**: Never draw wires, traces, or connection lines
 - **NUMBERED PINS**: Same number = connected together
 - **VISUAL CLARITY**: Clean layout with only numbered connection points
